@@ -1,0 +1,16 @@
+#pragma once
+
+#define JUCE_ANDROID 1
+#define JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED 1
+#define JUCE_DONT_DECLARE_PROJECTINFO 1
+
+#define JUCE_MODULE_AVAILABLE_juce_core 1
+#define JUCE_MODULE_AVAILABLE_juce_events 1
+#define JUCE_MODULE_AVAILABLE_juce_audio_basics 1
+#define JUCE_MODULE_AVAILABLE_juce_audio_devices 1
+#define JUCE_MODULE_AVAILABLE_juce_audio_formats 1
+#define JUCE_MODULE_AVAILABLE_juce_dsp 1
+
+#define JUCE_USE_ANDROID_OBOE 0
+#define JUCE_USE_ANDROID_AAUDIO 1
+#define JUCE_USE_ANDROID_OPENSLES 1

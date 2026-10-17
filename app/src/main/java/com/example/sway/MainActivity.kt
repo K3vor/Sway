@@ -10,7 +10,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.sway.ui.theme.SwayTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -24,18 +23,18 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            SwayTheme {
+            com.example.sway.ui.theme.SwayTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = jniStatusMessage,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
                         )
                     }
                 }
@@ -47,7 +46,7 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         init {
-            System.loadLibrary("sway-audio")
+            System.loadLibrary("sway_native")
         }
     }
 }

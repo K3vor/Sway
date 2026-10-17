@@ -1,49 +1,66 @@
 cmake_minimum_required(VERSION 3.22.1)
 
-project(sway-audio CXX C)
+project("sway_native" LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Support 16 KB page sizes required for Android 15+
-add_link_options("-Wl,-z,max-page-size=16384")
-
 include(FetchContent)
 
-# Fetch JUCE 8.0.4 headlessly
 FetchContent_Declare(
     juce
     GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
     GIT_TAG        8.0.4
+    GIT_SHALLOW    TRUE
 )
 
-# Disable unnecessary JUCE features for headless DSP library
-set(JUCE_BUILD_HELPER_TARGETS OFF CACHE BOOL "" FORCE)
-set(JUCE_ENABLE_MODULE_SOURCE_GROUPS OFF CACHE BOOL "" FORCE)
+FetchContent_GetProperties(juce)
+if(NOT juce_POPULATED)
+    FetchContent_Populate(juce)
+endif()
 
-FetchContent_MakeAvailable(juce)
+set(JUCE_MODULES_DIR "${juce_SOURCE_DIR}/modules")
 
-# Native shared library
 add_library(
-    sway-audio
+    sway_native
     SHARED
     native-lib.cpp
+    "${JUCE_MODULES_DIR}/juce_core/juce_core.cpp"
+    "${JUCE_MODULES_DIR}/juce_events/juce_events.cpp"
+    "${JUCE_MODULES_DIR}/juce_audio_basics/juce_audio_basics.cpp"
+    "${JUCE_MODULES_DIR}/juce_audio_devices/juce_audio_devices.cpp"
+    "${JUCE_MODULES_DIR}/juce_audio_formats/juce_audio_formats.cpp"
+    "${JUCE_MODULES_DIR}/juce_dsp/juce_dsp.cpp"
+    "${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c"
 )
 
-find_library(
-    log-lib
-    log
+target_include_directories(
+    sway_native
+    PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${JUCE_MODULES_DIR}"
+    "${ANDROID_NDK}/sources/android/cpufeatures"
+)
+
+target_compile_definitions(
+    sway_native
+    PRIVATE
+    JUCE_ANDROID=1
+    JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1
+    JUCE_DONT_DECLARE_PROJECTINFO=1
+)
+
+target_compile_options(
+    sway_native
+    PRIVATE
+    $<$<COMPILE_LANGUAGE:CXX>:-include "${CMAKE_CURRENT_SOURCE_DIR}/AppConfig.h">
 )
 
 target_link_libraries(
-    sway-audio
+    sway_native
     PRIVATE
-    juce::juce_audio_basics
-    juce::juce_audio_devices
-    juce::juce_audio_formats
-    juce::juce_dsp
-    juce::juce_core
-    ${log-lib}
+    log
+    android
+    OpenSLES
+    aaudio
 )
-
-target_link_options(sway-audio PRIVATE "-Wl,-z,max-page-size=16384")
